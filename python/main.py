@@ -42,7 +42,10 @@ def add_item(name: str = Form(...), category: str = Form(...), image: str = Form
 
     cur.execute("""insert or ignore into category(name) values (?)""", (category,))
     cur.execute("""select id from category where name = (?)""", (category,))
-    category_id = cur.fetchone()[0]
+    try:
+        category_id = cur.fetchone()[0]
+    except:
+        logger.info(f"ID of {category,} Don't exist ")
     logger.info(f"Receive item: {category_id}")
     hashed_filename = (
         hashlib.sha256(image.replace(".jpg", "").encode("utf-8")).hexdigest() + ".jpg"
