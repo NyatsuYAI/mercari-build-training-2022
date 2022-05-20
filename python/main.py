@@ -39,13 +39,17 @@ def root():
 def add_item(name: str = Form(...), category: str = Form(...), image: str = Form(...)):
     conn = sqlite3.connect(data_base_name)
     cur = conn.cursor()
-
+    if cur.fetchone[0]() == 0:
+        cur.execute(
+            """create table items(id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT,category_id INTEGER,image TEXT)"""
+        )
+        cur.execute(
+            """create table category(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE)"""
+        )
     cur.execute("""insert or ignore into category(name) values (?)""", (category,))
     cur.execute("""select id from category where name = (?)""", (category,))
-    try:
-        category_id = cur.fetchone()[0]
-    except:
-        logger.info(f"ID of {category,} Don't exist ")
+
+    category_id = cur.fetchone()[0]
     logger.info(f"Receive item: {category_id}")
     hashed_filename = (
         hashlib.sha256(image.replace(".jpg", "").encode("utf-8")).hexdigest() + ".jpg"
