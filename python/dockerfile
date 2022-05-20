@@ -4,7 +4,7 @@ COPY python/main.py python/main.py
 
 COPY python/image python/image
 
-copy db ./db
+COPY db/item.db ./db/item.db
 
 COPY python/requirements.txt python/requirements.txt
 

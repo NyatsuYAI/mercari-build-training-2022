@@ -4,7 +4,6 @@ from multiprocessing import allow_connection_pickling
 import os
 import logging
 import pathlib
-from types import NoneType
 from fastapi import FastAPI, Form, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -58,12 +57,10 @@ def add_item(name: str = Form(...), category: str = Form(...), image: str = Form
     if cur.fetchone() == None:
 
         logger.info(f"table not exists")
-        cur.execute(
-            """create table items(id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT,category_id INTEGER,image TEXT)"""
-        )
-        cur.execute(
-            """create table category(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE)"""
-        )
+        with open("../db/item.db") as schema_file:
+            schema = schema_file.read()
+            logger.debug("Read schema file.")
+        cur.executescript(f"""{schema}""")
     conn.commit()
     cur.execute("""insert or ignore into category(name) values (?)""", (category,))
     cur.execute("""select id from category where name = (?)""", (category,))
